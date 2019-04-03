@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import { courses as coursesInfo } from './courses'
+import { openDB } from 'idb';
 
 const slugify = require('slugify')
 
@@ -9,9 +10,46 @@ const SectionsContext = React.createContext()
 const App = () => {
   const [courses, setCourses] = useState(coursesInfo)
 
+  const dbPromise = openDB('courses-store', 1, {
+    upgrade(db) {
+        console.log('Creating the courses object store')
+        const store = db.createObjectStore('courses', {keyPath: 'name'})
+
+        console.log('Creating sections index')
+        store.createIndex('sections', 'sections')
+    }
+  })
+
   useEffect(() => {
     setCourses(courses)
+    storeLocally()
   },[courses])
+
+  const storeLocally = () => {
+    console.log('storing locally')
+    if (!('indexedDB' in window)) {
+      console.log('This browser doesn\'t support IndexedDB')
+      return
+    }
+    
+    dbPromise.then(db => {
+      let tx = db.transaction('courses', 'readwrite')
+      let store = tx.objectStore('courses')
+
+      return Promise.all(courses.map(item => {
+        console.log('Adding item: ', item)
+        return store.add(item)
+      })
+      ).catch(function(e) {
+        tx.abort()
+        console.log('Store Error:', e)
+      }).then(() => {
+        console.log('All items added successfully!');
+      })
+    }).catch(error => {
+      console.log('DB Promise Error:', error)
+    })
+  }
 
   const programLinks = () => {
     return courses.map(({ name }) => (
