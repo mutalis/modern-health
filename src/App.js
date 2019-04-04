@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import { courses as coursesInfo } from './courses'
 import { openDB } from 'idb';
+import * as Survey from "survey-react"
+import "survey-react/survey.css"
 
 const slugify = require('slugify')
 
@@ -120,12 +122,33 @@ const Section = ({ match }) => {
     ))
   }
 
+  // Callback methods on survey complete
+  const sendSurveyToServer = (survey, options) => {
+    const resultAsString = JSON.stringify(survey.data)
+    console.log(`Survey results: ${resultAsString}`)
+    alert(resultAsString) //send Ajax request to your web server.
+  }
+
+  const surveyJSON = { title: "Tell us, what technologies do you use?", pages: [
+    { name:"page1", questions: [ 
+        { type: "radiogroup", choices: [ "Yes", "No" ], isRequired: true, name: "frameworkUsing",title: "Do you use any front-end framework like Bootstrap?" },
+        { type: "checkbox", choices: ["Bootstrap","Foundation"], hasOther: true, isRequired: true, name: "framework", title: "What front-end framework do you use?", visibleIf: "{frameworkUsing} = 'Yes'" }
+     ]},
+    { name: "page2", questions: [
+      { type: "radiogroup", choices: ["Yes","No"],isRequired: true, name: "mvvmUsing", title: "Do you use any MVVM framework?" },
+      { type: "checkbox", choices: [ "AngularJS", "KnockoutJS", "React" ], hasOther: true, isRequired: true, name: "mvvm", title: "What MVVM framework do you use?", visibleIf: "{mvvmUsing} = 'Yes'" } ] },
+    { name: "page3",questions: [
+      { type: "comment", name: "about", title: "Please tell us about your main requirements for Survey library" } ] }
+   ]
+  }
+
   return (
     <div>
       <h3>{match.params.sectionId}</h3>
       <ul>
         {sectionInfo()}
       </ul>
+      <Survey.Survey json={surveyJSON} onComplete={sendSurveyToServer}/>
     </div>
   )
 }
