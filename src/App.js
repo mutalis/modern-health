@@ -9,6 +9,20 @@ const slugify = require('slugify')
 
 const SectionsContext = React.createContext()
 
+const programsStyle = {
+  ul: {
+    display: 'flex',
+    'list-style': 'none',
+    'justify-content': 'space-between',
+  },
+  a: {
+    color: 'red',
+    'font-size': 18,
+    'font-weight': 500,
+    'text-decoration': 'none'
+  }
+}
+
 const App = () => {
   const [courses, setCourses] = useState(coursesInfo)
 
@@ -56,7 +70,7 @@ const App = () => {
   const programLinks = () => {
     return courses.map(({ name }) => (
       <li key={slugify(name)}>
-        <Link to={`/${slugify(name)}`} >{name}</Link>
+        <Link style={programsStyle.a} to={`/${slugify(name)}`} >{name}</Link>
       </li>
     ))
   }
@@ -71,7 +85,8 @@ const App = () => {
   return (
     <Router>
       <div>
-        <ul>
+        <h2>Programs</h2>
+        <ul style={programsStyle.ul}>
           {programLinks()}
         </ul>
         <hr />
@@ -86,17 +101,40 @@ const Sections = ({ match }) => {
   const sections = useContext(SectionsContext)
 
   const sectionLinks = () => {
-    return sections.map(({ name, order }) => (
-      <li key={order}>
-        <Link to={`${match.url}/${slugify(name)}`} >{name}</Link>
+    return sections.map(({ name, order, image }) => (
+      <li style={sectionsStyle.li} key={order}>
+        <Link style={sectionsStyle.a} to={`${match.url}/${slugify(name)}`} >
+          <img src={image} width={100} height={100} />
+          <p>{name}</p>
+        </Link>
       </li>
     ))
+  }
+
+  const sectionsStyle = {
+    ul: {
+      display: 'flex',
+      'list-style': 'none',
+      'justify-content': 'space-between',
+    },
+    li: {
+      border: 'solid 2px gray',
+      borderRadius: 5,
+      padding: 5,
+      width: 100
+    },
+    a: {
+      color: 'green',
+      'font-size': 18,
+      'font-weight': 500,
+      'text-decoration': 'none',
+    }
   }
 
   return (
     <div>
       <h2>Sections</h2>
-      <ul>
+      <ul style={sectionsStyle.ul}>
         {sectionLinks()}
       </ul>
       <Route path={`${match.path}/:sectionId`} component={Section} />
@@ -124,7 +162,7 @@ const Section = ({ match }) => {
         }
         return <Survey.Survey key={index} json={surveyJSON} onComplete={sendSurveyToServer}/>
       } else {
-        return (<li key={index}>
+        return (<li key={index} style={sectionStyle.li}>
         {activity.content}
         </li>)
       }
@@ -137,9 +175,19 @@ const Section = ({ match }) => {
     console.log(`Survey results: ${resultAsString}`)
   }
 
+  const sectionStyle = {
+    title: {
+      color: 'green',
+    },
+    li: {
+      color: '#6d7072',
+      padding: 10
+    }
+  }
+
   return (
     <div>
-      <h3>{match.params.sectionId}</h3>
+      <h3 style={sectionStyle.title}>{match.params.sectionId}</h3>
       <ul>
         {sectionInfo()}
       </ul>
