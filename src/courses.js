@@ -1,4 +1,4 @@
-const courses = [
+const coursesInfo = [
   {
     "name": "Core Pillars Program",
     "description": "This program is for people who want to live a happier and more fulfilling life. It's for those of us who want to become more mindful, more engaged, and more connected to our everyday lives and relationships.",
@@ -175,4 +175,4 @@ const courses = [
   }
 ]
 
-export {courses}
+export { coursesInfo }
